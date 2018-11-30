@@ -26,15 +26,15 @@ class NeuralNetwork:
                 self.update_mini_batch(mini_batch, learning_rate)
             if None != test_data:
                 n_test = len(test_data)
-                num_correct = self.evaluate(test_data)
+                num_correct = self.test(test_data)
                 print("Epoch " + e + ": " + num_correct + " out of " + n_test + ".")
             else:
                 print("Epoch " + e + " completed.")
 
     #Learn this part
     def update_mini_batch(self, mini_batch, learning_rate):
-        grad_b = [numpy.zeroes(b) for b in self.biases]
-        grad_w = [numpy.zeroes(w) for w in self.weights]
+        grad_b = [numpy.zeros(b) for b in self.biases]
+        grad_w = [numpy.zeros(w) for w in self.weights]
         for x, y in mini_batch:
             dgrad_b, dgrad_w = self.backprop(x, y)
             grad_b = [gb + dgb for gb, dgb in zip(grad_b, dgrad_b)]
@@ -44,8 +44,8 @@ class NeuralNetwork:
 
 
     def backprop(self, x, y):
-        grad_w = [numpy.zeroes(w) for w in self.weights]
-        grad_b = [numpy.zeroes(b) for b in self.biases]
+        grad_w = [numpy.zeros(w) for w in self.weights]
+        grad_b = [numpy.zeros(b) for b in self.biases]
 
         #Feed-forward while keeping track of activations and weighted sums
         a = x
@@ -72,7 +72,7 @@ class NeuralNetwork:
         return (grad_b, grad_w)
     
     def test(self, test_data):
-        test_results = [numpy.argmax(self.calculate(x)), y for x, y in test_data]
+        test_results = [numpy.argmax(self.calculate(x), y) for x, y in test_data]
         return sum((1 if (x == y) else 0) for (x, y) in test_results)
 
 #Sigmoid and its derivative
@@ -82,3 +82,22 @@ def sigmoid(val):
 def dsigmoid(val):
     s = sigmoid(val)
     return s * (1 - s)
+
+
+nn = NeuralNetwork([2, 3, 3, 1])
+training_data = []
+testing_data = []
+for i in range(100):
+    for j in range(100):
+        x = numpy.random.randint(0, 101)
+        y = numpy.random.randint(0, 101)
+        training_data.append([[x, y], [0 if y < 0 else 1]])
+        x = numpy.random.randint(0, 101)
+        y = numpy.random.randint(0, 101)
+        testing_data.append([[x, y], [0 if y < 0 else 1]])
+
+nn.train(training_data, 5, 20, .01, testing_data)
+print(nn.calculate([56, -74]))
+        
+
+
